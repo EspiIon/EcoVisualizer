@@ -5,21 +5,10 @@ import Link from "next/link";
 import { COUNTRIES, REGIONS, type Region } from "@/data/countries";
 import { INDICATORS, type IndicatorKey } from "@/data/indicators";
 import { formatValue } from "@/lib/format";
+import { allBounds } from "@/lib/normalize";
 
 type SortKey = IndicatorKey | "name";
 type SortDir = "asc" | "desc";
-
-// Bornes [min, max] par indicateur pour la coloration heatmap.
-function computeBounds() {
-  const bounds: Partial<Record<IndicatorKey, { min: number; max: number }>> = {};
-  for (const ind of INDICATORS) {
-    const vals = COUNTRIES.map((c) => c[ind.key]).filter(
-      (v): v is number => typeof v === "number",
-    );
-    if (vals.length) bounds[ind.key] = { min: Math.min(...vals), max: Math.max(...vals) };
-  }
-  return bounds;
-}
 
 // Couleur de fond (vert = "bon", rouge = "mauvais") selon le sens de l'indicateur.
 function heatColor(
@@ -44,7 +33,7 @@ export default function RankingTable() {
   const [sortKey, setSortKey] = useState<SortKey>("economicFreedom");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
-  const bounds = useMemo(computeBounds, []);
+  const bounds = useMemo(allBounds, []);
 
   const rows = useMemo(() => {
     const filtered = COUNTRIES.filter((c) => {

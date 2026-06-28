@@ -5,6 +5,7 @@ import { COUNTRIES, getCountry } from "@/data/countries";
 import { INDICATORS } from "@/data/indicators";
 import { formatValue } from "@/lib/format";
 import { getRank } from "@/lib/ranking";
+import CountryRadar from "@/components/CountryRadar";
 
 export function generateStaticParams() {
   return COUNTRIES.map((c) => ({ code: c.code }));
@@ -43,13 +44,23 @@ export default async function PaysPage({
         </div>
       </div>
 
+      <CountryRadar country={country} />
+
       <div className="grid gap-3 sm:grid-cols-2">
         {INDICATORS.map((ind) => {
           const value = country[ind.key];
           const rankInfo = getRank(country.code, ind.key);
           return (
             <div key={ind.key} className="rounded-lg border border-slate-200 bg-white p-4">
-              <div className="text-sm text-slate-500">{ind.label}</div>
+              <a
+                href={ind.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-slate-500 hover:underline"
+                title={ind.source}
+              >
+                {ind.label} ↗
+              </a>
               <div className="flex items-baseline justify-between mt-1">
                 <span className="text-xl font-semibold text-slate-800">
                   {formatValue(value, ind)}

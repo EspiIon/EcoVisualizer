@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import ScatterCorrelation from "@/components/ScatterCorrelation";
+import CorrelationsView from "@/components/CorrelationsView";
 
 export const metadata: Metadata = {
   title: "Corrélations — Indice Liberté",
@@ -13,11 +13,11 @@ export default function CorrelationsPage() {
           Corrélations entre indicateurs
         </h1>
         <p className="text-slate-600 mt-1">
-          Choisissez deux indicateurs pour les croiser. Le coefficient de Pearson (r) et la
-          droite de tendance résument la relation linéaire observée.
+          Choisissez deux indicateurs pour les croiser, ou consultez la matrice qui résume toutes
+          les corrélations. Le coefficient de Pearson (r) mesure la relation linéaire observée.
         </p>
       </div>
-      <ScatterCorrelation />
+      <CorrelationsView />
     </div>
   );
 }

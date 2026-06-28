@@ -45,7 +45,17 @@ export default function Home() {
             <div key={ind.key} className="rounded-lg border border-slate-200 bg-white p-4">
               <div className="font-medium text-slate-800">{ind.label}</div>
               <p className="text-sm text-slate-600 mt-1">{ind.description}</p>
-              <div className="text-xs text-slate-400 mt-2">Source : {ind.source}</div>
+              <div className="text-xs text-slate-400 mt-2">
+                Source :{" "}
+                <a
+                  href={ind.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-slate-600"
+                >
+                  {ind.source}
+                </a>
+              </div>
             </div>
           ))}
         </div>

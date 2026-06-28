@@ -26,6 +26,8 @@ export function formatByUnit(value: number, unit: Unit, decimals: number): strin
       return `${formatNumber(value, decimals)} ans`;
     case "index10":
       return `${formatNumber(value, decimals)} / 10`;
+    case "ratio":
+      return formatNumber(value, decimals);
     case "score":
     default:
       return formatNumber(value, decimals);

@@ -51,18 +51,34 @@ export default function ScatterCorrelation() {
   const [xKey, setXKey] = useState<IndicatorKey>("economicFreedom");
   const [yKey, setYKey] = useState<IndicatorKey>("gdpPerCapitaPpp");
   const [selected, setSelected] = useState<Country | null>(null);
+  const [activeRegions, setActiveRegions] = useState<Set<Region>>(new Set(REGIONS));
 
   const xMeta = INDICATOR_BY_KEY[xKey];
   const yMeta = INDICATOR_BY_KEY[yKey];
 
+  function toggleRegion(region: Region) {
+    setSelected(null);
+    setActiveRegions((prev) => {
+      const next = new Set(prev);
+      if (next.has(region)) {
+        if (next.size === 1) return prev; // garder au moins une région active
+        next.delete(region);
+      } else {
+        next.add(region);
+      }
+      return next;
+    });
+  }
+
   const points = useMemo<Point[]>(() => {
     return COUNTRIES.flatMap((c) => {
+      if (!activeRegions.has(c.region)) return [];
       const x = c[xKey];
       const y = c[yKey];
       if (typeof x !== "number" || typeof y !== "number") return [];
       return [{ x, y, code: c.code, name: c.name, flag: c.flag, region: c.region }];
     });
-  }, [xKey, yKey]);
+  }, [xKey, yKey, activeRegions]);
 
   const { r, trend, xDomain, yDomain } = useMemo(() => {
     const xs = points.map((p) => p.x);
@@ -102,6 +118,33 @@ export default function ScatterCorrelation() {
       <div className="flex flex-wrap gap-6 mb-6">
         <AxisSelect label="Axe horizontal (X)" value={xKey} onChange={setXKey} exclude={yKey} />
         <AxisSelect label="Axe vertical (Y)"   value={yKey} onChange={setYKey} exclude={xKey} />
+      </div>
+
+      {/* Filtre régions */}
+      <div className="flex flex-wrap gap-2 mb-5">
+        {REGIONS.map((rg) => {
+          const active = activeRegions.has(rg);
+          return (
+            <button
+              key={rg}
+              onClick={() => toggleRegion(rg)}
+              className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
+                active
+                  ? "text-white border-transparent"
+                  : "bg-white text-slate-400 border-slate-200"
+              }`}
+              style={active ? { backgroundColor: REGION_COLORS[rg], borderColor: REGION_COLORS[rg] } : {}}
+            >
+              {rg}
+            </button>
+          );
+        })}
+        <button
+          onClick={() => { setActiveRegions(new Set(REGIONS)); setSelected(null); }}
+          className="px-3 py-1 rounded-full text-xs font-medium border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 transition-all"
+        >
+          Tout afficher
+        </button>
       </div>
 
       <div className="grid gap-4 mb-6 sm:grid-cols-3">
