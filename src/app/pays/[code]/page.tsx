@@ -30,24 +30,55 @@ export default async function PaysPage({
   const country = getCountry(code);
   if (!country) notFound();
 
+  // Navigation précédent / suivant dans l'ordre alphabétique
+  const idx = COUNTRIES.findIndex((c) => c.code === code);
+  const prevCountry = idx > 0 ? COUNTRIES[idx - 1] : COUNTRIES[COUNTRIES.length - 1];
+  const nextCountry = idx < COUNTRIES.length - 1 ? COUNTRIES[idx + 1] : COUNTRIES[0];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
 
-      {/* Breadcrumb */}
-      <Link
-        href="/classements"
+      {/* Barre de navigation supérieure */}
+      <div
         style={{
-          fontSize: "0.8125rem",
-          color: "var(--text-3)",
-          display: "inline-flex",
+          display: "flex",
           alignItems: "center",
-          gap: "0.35rem",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "0.5rem",
         }}
       >
-        ← Retour aux classements
-      </Link>
+        {/* Retour */}
+        <Link
+          href="/classements"
+          className="btn-outline"
+          style={{ fontSize: "0.8125rem", padding: "0.4rem 0.9rem" }}
+        >
+          ← Classements
+        </Link>
 
-      {/* Header */}
+        {/* Précédent / Suivant */}
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <Link
+            href={`/pays/${prevCountry.code}`}
+            className="btn-outline"
+            style={{ fontSize: "0.8125rem", padding: "0.4rem 0.9rem" }}
+            title={prevCountry.name}
+          >
+            ← {prevCountry.flag} {prevCountry.name}
+          </Link>
+          <Link
+            href={`/pays/${nextCountry.code}`}
+            className="btn-outline"
+            style={{ fontSize: "0.8125rem", padding: "0.4rem 0.9rem" }}
+            title={nextCountry.name}
+          >
+            {nextCountry.flag} {nextCountry.name} →
+          </Link>
+        </div>
+      </div>
+
+      {/* En-tête pays */}
       <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
         <span style={{ fontSize: "3.5rem", lineHeight: 1 }}>{country.flag}</span>
         <div>
@@ -57,19 +88,19 @@ export default async function PaysPage({
           >
             {country.name}
           </h1>
-          <span
-            className="badge badge-gold"
-            style={{ marginTop: "0.4rem", display: "inline-block" }}
-          >
-            {country.region}
-          </span>
+          <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginTop: "0.4rem", flexWrap: "wrap" }}>
+            <span className="badge badge-gold">{country.region}</span>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-3)" }}>
+              {idx + 1} / {COUNTRIES.length} dans la base
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Radar */}
       <CountryRadar country={country} />
 
-      {/* Indicator grid */}
+      {/* Grille d'indicateurs */}
       <div
         style={{
           display: "grid",
@@ -81,11 +112,7 @@ export default async function PaysPage({
           const value = country[ind.key];
           const rankInfo = getRank(country.code, ind.key);
           return (
-            <div
-              key={ind.key}
-              className="card"
-              style={{ padding: "1rem 1.25rem" }}
-            >
+            <div key={ind.key} className="card" style={{ padding: "1rem 1.25rem" }}>
               <a
                 href={ind.sourceUrl}
                 target="_blank"
@@ -113,10 +140,7 @@ export default async function PaysPage({
                   {formatValue(value, ind)}
                 </span>
                 {rankInfo && (
-                  <span
-                    className="font-mono-data"
-                    style={{ fontSize: "0.75rem", color: "var(--text-3)" }}
-                  >
+                  <span className="font-mono-data" style={{ fontSize: "0.75rem", color: "var(--text-3)" }}>
                     <span style={{ color: rankInfo.rank <= 10 ? "var(--gold)" : "var(--text-2)" }}>
                       {rankInfo.rank}
                     </span>
@@ -130,6 +154,42 @@ export default async function PaysPage({
             </div>
           );
         })}
+      </div>
+
+      {/* Navigation bas de page */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "0.5rem",
+          paddingTop: "0.5rem",
+          borderTop: "1px solid var(--border)",
+        }}
+      >
+        <Link
+          href={`/pays/${prevCountry.code}`}
+          className="btn-outline"
+          style={{ fontSize: "0.8125rem", padding: "0.4rem 0.9rem" }}
+        >
+          ← {prevCountry.flag} {prevCountry.name}
+        </Link>
+
+        <Link
+          href="/classements"
+          style={{ fontSize: "0.8125rem", color: "var(--text-3)" }}
+        >
+          ↑ Tous les classements
+        </Link>
+
+        <Link
+          href={`/pays/${nextCountry.code}`}
+          className="btn-outline"
+          style={{ fontSize: "0.8125rem", padding: "0.4rem 0.9rem" }}
+        >
+          {nextCountry.flag} {nextCountry.name} →
+        </Link>
       </div>
 
     </div>

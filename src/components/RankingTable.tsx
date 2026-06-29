@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { COUNTRIES, REGIONS, type Region } from "@/data/countries";
 import { INDICATORS, type IndicatorKey } from "@/data/indicators";
 import { formatValue } from "@/lib/format";
@@ -29,6 +29,7 @@ function heatColor(
 }
 
 export default function RankingTable() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [region, setRegion] = useState<Region | "all">("all");
   const [sortKey, setSortKey] = useState<SortKey>("economicFreedom");
@@ -74,6 +75,7 @@ export default function RankingTable() {
 
   return (
     <div>
+      {/* Filtres */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1rem", alignItems: "center" }}>
         <input
           type="search"
@@ -91,7 +93,23 @@ export default function RankingTable() {
             <option key={r} value={r}>{r}</option>
           ))}
         </select>
-        <span style={{ fontSize: "0.8125rem", color: "var(--text-3)" }}>
+        {search || region !== "all" ? (
+          <button
+            onClick={() => { setSearch(""); setRegion("all"); }}
+            style={{
+              fontSize: "0.8125rem",
+              color: "var(--gold)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              fontFamily: "inherit",
+              padding: 0,
+            }}
+          >
+            Effacer les filtres ✕
+          </button>
+        ) : null}
+        <span style={{ fontSize: "0.8125rem", color: "var(--text-3)", marginLeft: "auto" }}>
           {rows.length} pays
         </span>
       </div>
@@ -100,9 +118,7 @@ export default function RankingTable() {
         <table className="data-table">
           <thead>
             <tr>
-              <th
-                style={{ textAlign: "left", position: "sticky", left: 0, background: "var(--surface)" }}
-              >
+              <th style={{ textAlign: "left", position: "sticky", left: 0, background: "var(--surface)" }}>
                 #
               </th>
               <th
@@ -130,27 +146,28 @@ export default function RankingTable() {
           </thead>
           <tbody>
             {rows.map((c, i) => (
-              <tr key={c.code}>
+              <tr
+                key={c.code}
+                onClick={() => router.push(`/pays/${c.code}`)}
+                style={{ cursor: "pointer" }}
+                title={`Voir la fiche de ${c.name}`}
+              >
                 <td
                   style={{
                     position: "sticky",
                     left: 0,
                     background: "var(--surface)",
                     color: "var(--text-3)",
+                    transition: "background 120ms",
                   }}
                 >
                   {i + 1}
                 </td>
-                <td style={{ whiteSpace: "nowrap" }}>
-                  <Link
-                    href={`/pays/${c.code}`}
-                    style={{ color: "var(--text)", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = "var(--gold)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text)")}
-                  >
+                <td style={{ whiteSpace: "nowrap", fontWeight: 500 }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", color: "var(--text)" }}>
                     <span>{c.flag}</span>
                     {c.name}
-                  </Link>
+                  </span>
                 </td>
                 {INDICATORS.map((ind) => {
                   const v = c[ind.key];
@@ -160,10 +177,7 @@ export default function RankingTable() {
                       ? heatColor(v, ind.key, b, ind.higherIsBetter)
                       : "transparent";
                   return (
-                    <td
-                      key={ind.key}
-                      style={{ textAlign: "right", backgroundColor: bg }}
-                    >
+                    <td key={ind.key} style={{ textAlign: "right", backgroundColor: bg }}>
                       {formatValue(v, ind)}
                     </td>
                   );
@@ -174,15 +188,33 @@ export default function RankingTable() {
               <tr>
                 <td
                   colSpan={INDICATORS.length + 2}
-                  style={{ textAlign: "center", padding: "2rem 0.75rem", color: "var(--text-3)" }}
+                  style={{ textAlign: "center", padding: "2.5rem 0.75rem", color: "var(--text-3)" }}
                 >
-                  Aucun pays ne correspond à la recherche.
+                  Aucun pays ne correspond à la recherche.{" "}
+                  <button
+                    onClick={() => { setSearch(""); setRegion("all"); }}
+                    style={{
+                      color: "var(--gold)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      fontSize: "inherit",
+                      padding: 0,
+                    }}
+                  >
+                    Effacer les filtres
+                  </button>
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+
+      <p style={{ fontSize: "0.75rem", color: "var(--text-3)", marginTop: "0.5rem", textAlign: "right" }}>
+        Cliquez sur une ligne pour voir la fiche pays · Cliquez sur un en-tête pour trier
+      </p>
     </div>
   );
 }

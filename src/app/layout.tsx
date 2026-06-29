@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export const metadata: Metadata = {
   title: "Indice Liberté — Comparaison des pays",
@@ -76,6 +77,7 @@ export default function RootLayout({
             <span>Les corrélations n&apos;impliquent pas de causalité.</span>
           </div>
         </footer>
+        <ScrollToTop />
       </body>
     </html>
   );
