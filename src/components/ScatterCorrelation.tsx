@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   CartesianGrid,
   Label,
@@ -107,17 +107,16 @@ export default function ScatterCorrelation() {
     return map;
   }, [points]);
 
-  function handleChartClick(data: unknown) {
-    const d = data as { activePayload?: { payload: Point }[] } | null;
-    if (!d?.activePayload?.length) {
-      setSelected(null);
-      return;
-    }
-    const pt = d.activePayload[0]?.payload;
-    if (pt?.code) {
-      const country = COUNTRIES.find((c) => c.code === pt.code) ?? null;
-      setSelected(country);
-    }
+  function handleDotClick(data: unknown) {
+    const pt = data as Point;
+    const country = COUNTRIES.find((c) => c.code === pt.code) ?? null;
+    setSelected(country);
+  }
+
+  function handleChartClick(_data: unknown, event: React.MouseEvent<SVGElement>) {
+    const target = event.target as SVGElement;
+    if (target.tagName === "circle") return; // laisse le Scatter onClick gérer
+    setSelected(null);
   }
 
   return (
@@ -256,6 +255,7 @@ export default function ScatterCorrelation() {
                 fill={REGION_COLORS[rg]}
                 isAnimationActive={false}
                 cursor="pointer"
+                onClick={handleDotClick}
                 shape={(props: unknown) => (
                   <CustomDot
                     {...(props as Record<string, unknown>)}
