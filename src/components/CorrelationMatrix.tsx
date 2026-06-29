@@ -10,13 +10,23 @@ interface Cell {
   n: number;
 }
 
-/** Couleur d'une case selon r : rouge (−1) → blanc (0) → vert (+1). */
 function cellColor(r: number): string {
   if (Number.isNaN(r)) return "transparent";
-  const hue = r >= 0 ? 140 : 0; // vert / rouge
-  const sat = Math.round(Math.abs(r) * 65);
-  const light = 96 - Math.round(Math.abs(r) * 36); // plus foncé = plus fort
-  return `hsl(${hue} ${sat}% ${light}%)`;
+  const abs = Math.abs(r);
+  if (r >= 0) {
+    const l = 22 - Math.round(abs * 12);
+    const s = 40 + Math.round(abs * 25);
+    return `hsl(142 ${s}% ${l}%)`;
+  } else {
+    const l = 22 - Math.round(abs * 12);
+    const s = 50 + Math.round(abs * 20);
+    return `hsl(0 ${s}% ${l}%)`;
+  }
+}
+
+function textColor(r: number): string {
+  if (Number.isNaN(r)) return "var(--text-3)";
+  return Math.abs(r) > 0.3 ? "var(--text)" : "var(--text-2)";
 }
 
 export default function CorrelationMatrix() {
@@ -44,25 +54,50 @@ export default function CorrelationMatrix() {
 
   return (
     <div>
-      <p className="text-sm text-slate-600 mb-4">
-        Coefficient de corrélation de Pearson (r) entre chaque paire d&apos;indicateurs.
-        <span className="text-emerald-600 font-medium"> Vert</span> = corrélation positive,
-        <span className="text-red-600 font-medium"> rouge</span> = négative ; plus la couleur est
-        soutenue, plus la relation est forte.
+      <p style={{ fontSize: "0.875rem", color: "var(--text-2)", marginBottom: "1rem", lineHeight: 1.6 }}>
+        Coefficient de corrélation de Pearson (r) entre chaque paire d&apos;indicateurs.{" "}
+        <span style={{ color: "#34d399", fontWeight: 500 }}>Vert</span> = corrélation positive,{" "}
+        <span style={{ color: "#f87171", fontWeight: 500 }}>rouge</span> = négative.
       </p>
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-        <table className="border-collapse text-sm">
+      <div className="card" style={{ overflowX: "auto" }}>
+        <table style={{ borderCollapse: "collapse", fontSize: "0.75rem" }}>
           <thead>
             <tr>
-              <th className="sticky left-0 z-10 bg-white p-2"></th>
+              <th
+                style={{
+                  position: "sticky",
+                  left: 0,
+                  zIndex: 10,
+                  background: "var(--surface)",
+                  padding: "0.5rem",
+                  borderBottom: "1px solid var(--border)",
+                }}
+              />
               {INDICATORS.map((ind) => (
                 <th
                   key={ind.key}
-                  className="p-2 font-medium text-slate-600 align-bottom whitespace-nowrap text-xs"
+                  style={{
+                    padding: "0.5rem",
+                    fontWeight: 500,
+                    color: "var(--text-2)",
+                    verticalAlign: "bottom",
+                    whiteSpace: "nowrap",
+                    borderBottom: "1px solid var(--border)",
+                    fontFamily: "Outfit, sans-serif",
+                    fontSize: "0.7rem",
+                    letterSpacing: "0.02em",
+                  }}
                   title={ind.label}
                 >
-                  <span className="block [writing-mode:vertical-rl] rotate-180 mx-auto">
+                  <span
+                    style={{
+                      display: "block",
+                      writingMode: "vertical-rl",
+                      rotate: "180deg",
+                      margin: "0 auto",
+                    }}
+                  >
                     {ind.shortLabel}
                   </span>
                 </th>
@@ -73,7 +108,20 @@ export default function CorrelationMatrix() {
             {INDICATORS.map((rowInd) => (
               <tr key={rowInd.key}>
                 <th
-                  className="sticky left-0 z-10 bg-white text-left px-3 py-2 font-medium text-slate-600 whitespace-nowrap text-xs"
+                  style={{
+                    position: "sticky",
+                    left: 0,
+                    zIndex: 10,
+                    background: "var(--surface)",
+                    textAlign: "left",
+                    padding: "0.4rem 0.75rem",
+                    fontWeight: 500,
+                    color: "var(--text-2)",
+                    whiteSpace: "nowrap",
+                    fontSize: "0.7rem",
+                    fontFamily: "Outfit, sans-serif",
+                    borderRight: "1px solid var(--border)",
+                  }}
                   title={rowInd.label}
                 >
                   {rowInd.shortLabel}
@@ -84,19 +132,21 @@ export default function CorrelationMatrix() {
                   return (
                     <td
                       key={colInd.key}
-                      className="text-center tabular-nums px-2 py-2 border border-white"
-                      style={{ backgroundColor: isDiag ? "#f1f5f9" : cellColor(cell.r) }}
+                      style={{
+                        textAlign: "center",
+                        fontFamily: "Space Mono, monospace",
+                        fontSize: "0.7rem",
+                        padding: "0.4rem 0.35rem",
+                        border: "1px solid rgba(29,43,66,0.5)",
+                        backgroundColor: isDiag ? "var(--surface-2)" : cellColor(cell.r),
+                        color: isDiag ? "var(--text-3)" : textColor(cell.r),
+                        minWidth: "3.5rem",
+                      }}
                       title={`${rowInd.shortLabel} × ${colInd.shortLabel} — r = ${
                         Number.isNaN(cell.r) ? "n/a" : cell.r.toFixed(2)
                       } (n=${cell.n})`}
                     >
-                      {isDiag ? (
-                        <span className="text-slate-300">—</span>
-                      ) : Number.isNaN(cell.r) ? (
-                        ""
-                      ) : (
-                        cell.r.toFixed(2)
-                      )}
+                      {isDiag ? "—" : Number.isNaN(cell.r) ? "" : cell.r.toFixed(2)}
                     </td>
                   );
                 })}
@@ -106,7 +156,7 @@ export default function CorrelationMatrix() {
         </table>
       </div>
 
-      <p className="text-xs text-slate-500 mt-3">
+      <p style={{ fontSize: "0.75rem", color: "var(--text-3)", marginTop: "0.75rem" }}>
         Calculé sur les pays disposant des deux valeurs. Une corrélation n&apos;implique pas de
         causalité.
       </p>

@@ -10,7 +10,6 @@ import { allBounds } from "@/lib/normalize";
 type SortKey = IndicatorKey | "name";
 type SortDir = "asc" | "desc";
 
-// Couleur de fond (vert = "bon", rouge = "mauvais") selon le sens de l'indicateur.
 function heatColor(
   value: number,
   key: IndicatorKey,
@@ -20,11 +19,13 @@ function heatColor(
   if (higherIsBetter === null) return "transparent";
   const { min, max } = bounds;
   if (max === min) return "transparent";
-  let t = (value - min) / (max - min); // 0..1
+  let t = (value - min) / (max - min);
   if (!higherIsBetter) t = 1 - t;
-  // hsl du rouge (0) au vert (130)
-  const hue = Math.round(t * 130);
-  return `hsl(${hue} 70% 92%)`;
+  const hue = t >= 0.5 ? 142 : 0;
+  const intensity = Math.abs(t - 0.5) * 2;
+  const lightness = 14 + Math.round(intensity * 10);
+  const sat = 50 + Math.round(intensity * 20);
+  return `hsl(${hue} ${sat}% ${lightness}%)`;
 }
 
 export default function RankingTable() {
@@ -49,7 +50,6 @@ export default function RankingTable() {
       }
       const av = a[sortKey];
       const bv = b[sortKey];
-      // Valeurs manquantes toujours en bas
       if (av === undefined && bv === undefined) return 0;
       if (av === undefined) return 1;
       if (bv === undefined) return -1;
@@ -74,38 +74,40 @@ export default function RankingTable() {
 
   return (
     <div>
-      <div className="flex flex-wrap gap-3 mb-4">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginBottom: "1rem", alignItems: "center" }}>
         <input
           type="search"
           placeholder="Rechercher un pays…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="px-3 py-2 rounded-md border border-slate-300 bg-white text-sm w-56"
+          style={{ width: "14rem" }}
         />
         <select
           value={region}
           onChange={(e) => setRegion(e.target.value as Region | "all")}
-          className="px-3 py-2 rounded-md border border-slate-300 bg-white text-sm"
         >
           <option value="all">Toutes les régions</option>
           {REGIONS.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
+            <option key={r} value={r}>{r}</option>
           ))}
         </select>
-        <span className="text-sm text-slate-500 self-center">
+        <span style={{ fontSize: "0.8125rem", color: "var(--text-3)" }}>
           {rows.length} pays
         </span>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-        <table className="w-full text-sm border-collapse">
+      <div className="card" style={{ overflowX: "auto" }}>
+        <table className="data-table">
           <thead>
-            <tr className="bg-slate-50 text-slate-600">
-              <th className="text-left px-3 py-2 font-medium sticky left-0 bg-slate-50">#</th>
+            <tr>
               <th
-                className="text-left px-3 py-2 font-medium cursor-pointer select-none whitespace-nowrap"
+                style={{ textAlign: "left", position: "sticky", left: 0, background: "var(--surface)" }}
+              >
+                #
+              </th>
+              <th
+                className="sortable"
+                style={{ textAlign: "left" }}
                 onClick={() => toggleSort("name")}
               >
                 Pays{sortIndicator("name")}
@@ -113,26 +115,40 @@ export default function RankingTable() {
               {INDICATORS.map((ind) => (
                 <th
                   key={ind.key}
-                  className="text-right px-3 py-2 font-medium cursor-pointer select-none whitespace-nowrap"
+                  className="sortable"
+                  style={{ textAlign: "right" }}
                   title={ind.description}
                   onClick={() => toggleSort(ind.key)}
                 >
                   {ind.shortLabel}
-                  {sortIndicator(ind.key)}
+                  <span style={{ color: sortKey === ind.key ? "var(--gold)" : "inherit" }}>
+                    {sortIndicator(ind.key)}
+                  </span>
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.map((c, i) => (
-              <tr key={c.code} className="border-t border-slate-100 hover:bg-slate-50/60">
-                <td className="px-3 py-2 text-slate-400 tabular-nums">{i + 1}</td>
-                <td className="px-3 py-2 whitespace-nowrap">
+              <tr key={c.code}>
+                <td
+                  style={{
+                    position: "sticky",
+                    left: 0,
+                    background: "var(--surface)",
+                    color: "var(--text-3)",
+                  }}
+                >
+                  {i + 1}
+                </td>
+                <td style={{ whiteSpace: "nowrap" }}>
                   <Link
                     href={`/pays/${c.code}`}
-                    className="hover:underline decoration-sky-400"
+                    style={{ color: "var(--text)", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "var(--gold)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text)")}
                   >
-                    <span className="mr-1.5">{c.flag}</span>
+                    <span>{c.flag}</span>
                     {c.name}
                   </Link>
                 </td>
@@ -146,8 +162,7 @@ export default function RankingTable() {
                   return (
                     <td
                       key={ind.key}
-                      className="px-3 py-2 text-right tabular-nums"
-                      style={{ backgroundColor: bg }}
+                      style={{ textAlign: "right", backgroundColor: bg }}
                     >
                       {formatValue(v, ind)}
                     </td>
@@ -157,7 +172,10 @@ export default function RankingTable() {
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={INDICATORS.length + 2} className="px-3 py-8 text-center text-slate-400">
+                <td
+                  colSpan={INDICATORS.length + 2}
+                  style={{ textAlign: "center", padding: "2rem 0.75rem", color: "var(--text-3)" }}
+                >
                   Aucun pays ne correspond à la recherche.
                 </td>
               </tr>

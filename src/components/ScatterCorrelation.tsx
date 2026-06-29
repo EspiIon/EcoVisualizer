@@ -20,15 +20,15 @@ import { formatByUnit, formatR, formatValue } from "@/lib/format";
 import { getRank } from "@/lib/ranking";
 
 const REGION_COLORS: Record<Region, string> = {
-  Europe: "#2563eb",
-  Amériques: "#dc2626",
-  "Asie-Pacifique": "#16a34a",
-  "Moyen-Orient": "#d97706",
-  Afrique: "#7c3aed",
+  Europe: "#60a5fa",
+  Amériques: "#34d399",
+  "Asie-Pacifique": "#f59e0b",
+  "Moyen-Orient": "#a78bfa",
+  Afrique: "#fb923c",
 };
 
 const DOT_SIZE = 300;
-const DOT_RADIUS = Math.sqrt(DOT_SIZE / Math.PI); // ~9.8 px
+const DOT_RADIUS = Math.sqrt(DOT_SIZE / Math.PI);
 
 interface Point {
   x: number;
@@ -61,7 +61,7 @@ export default function ScatterCorrelation() {
     setActiveRegions((prev) => {
       const next = new Set(prev);
       if (next.has(region)) {
-        if (next.size === 1) return prev; // garder au moins une région active
+        if (next.size === 1) return prev;
         next.delete(region);
       } else {
         next.add(region);
@@ -115,25 +115,32 @@ export default function ScatterCorrelation() {
 
   return (
     <div>
-      <div className="flex flex-wrap gap-6 mb-6">
+      {/* Axis selectors */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "1.5rem", marginBottom: "1.25rem" }}>
         <AxisSelect label="Axe horizontal (X)" value={xKey} onChange={setXKey} exclude={yKey} />
-        <AxisSelect label="Axe vertical (Y)"   value={yKey} onChange={setYKey} exclude={xKey} />
+        <AxisSelect label="Axe vertical (Y)" value={yKey} onChange={setYKey} exclude={xKey} />
       </div>
 
-      {/* Filtre régions */}
-      <div className="flex flex-wrap gap-2 mb-5">
+      {/* Region filter */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1.25rem" }}>
         {REGIONS.map((rg) => {
           const active = activeRegions.has(rg);
           return (
             <button
               key={rg}
               onClick={() => toggleRegion(rg)}
-              className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
-                active
-                  ? "text-white border-transparent"
-                  : "bg-white text-slate-400 border-slate-200"
-              }`}
-              style={active ? { backgroundColor: REGION_COLORS[rg], borderColor: REGION_COLORS[rg] } : {}}
+              style={{
+                padding: "0.25rem 0.75rem",
+                borderRadius: "999px",
+                fontSize: "0.75rem",
+                fontWeight: 500,
+                border: `1px solid ${active ? REGION_COLORS[rg] : "var(--border-2)"}`,
+                background: active ? `${REGION_COLORS[rg]}22` : "transparent",
+                color: active ? REGION_COLORS[rg] : "var(--text-3)",
+                cursor: "pointer",
+                transition: "all 160ms ease",
+                fontFamily: "inherit",
+              }}
             >
               {rg}
             </button>
@@ -141,40 +148,66 @@ export default function ScatterCorrelation() {
         })}
         <button
           onClick={() => { setActiveRegions(new Set(REGIONS)); setSelected(null); }}
-          className="px-3 py-1 rounded-full text-xs font-medium border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 transition-all"
+          style={{
+            padding: "0.25rem 0.75rem",
+            borderRadius: "999px",
+            fontSize: "0.75rem",
+            fontWeight: 500,
+            border: "1px solid var(--border-2)",
+            background: "transparent",
+            color: "var(--text-3)",
+            cursor: "pointer",
+            fontFamily: "inherit",
+            transition: "all 160ms ease",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-3)")}
         >
           Tout afficher
         </button>
       </div>
 
-      <div className="grid gap-4 mb-6 sm:grid-cols-3">
-        <Stat label="Coefficient r (Pearson)" value={formatR(r)} />
+      {/* Stats strip */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "0.75rem",
+          marginBottom: "1.25rem",
+        }}
+      >
+        <Stat label="Coefficient r (Pearson)" value={formatR(r)} highlight />
         <Stat label="Interprétation" value={interpretCorrelation(r)} />
         <Stat label="Pays comparés" value={String(points.length)} />
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4">
-        <p className="text-xs text-slate-400 mb-2">Cliquez sur une bulle pour voir la fiche pays</p>
+      {/* Chart */}
+      <div className="card" style={{ padding: "1rem" }}>
+        <p style={{ fontSize: "0.75rem", color: "var(--text-3)", marginBottom: "0.5rem" }}>
+          Cliquez sur une bulle pour voir la fiche pays
+        </p>
         <ResponsiveContainer width="100%" height={500}>
           <ComposedChart margin={{ top: 16, right: 32, bottom: 48, left: 24 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               type="number"
               dataKey="x"
               domain={xDomain}
               tickFormatter={(v) => formatByUnit(v, xMeta.unit, 0)}
-              tick={{ fontSize: 11, fill: "#64748b" }}
+              tick={{ fontSize: 11, fill: "var(--text-3)", fontFamily: "Space Mono, monospace" }}
               tickCount={7}
+              stroke="var(--border)"
             >
-              <Label value={xMeta.label} position="bottom" offset={28} fill="#334155" fontSize={12} />
+              <Label value={xMeta.label} position="bottom" offset={28} fill="var(--text-2)" fontSize={12} />
             </XAxis>
             <YAxis
               type="number"
               dataKey="y"
               domain={yDomain}
               tickFormatter={(v) => formatByUnit(v, yMeta.unit, 0)}
-              tick={{ fontSize: 11, fill: "#64748b" }}
+              tick={{ fontSize: 11, fill: "var(--text-3)", fontFamily: "Space Mono, monospace" }}
               width={82}
+              stroke="var(--border)"
             >
               <Label
                 value={yMeta.label}
@@ -182,12 +215,16 @@ export default function ScatterCorrelation() {
                 position="insideLeft"
                 offset={-8}
                 style={{ textAnchor: "middle" }}
-                fill="#334155"
+                fill="var(--text-2)"
                 fontSize={12}
               />
             </YAxis>
             <ZAxis range={[DOT_SIZE, DOT_SIZE]} />
-            <Legend verticalAlign="top" height={36} />
+            <Legend
+              verticalAlign="top"
+              height={36}
+              wrapperStyle={{ fontSize: "0.75rem", color: "var(--text-2)" }}
+            />
 
             {trend.length === 2 && (
               <Line
@@ -195,8 +232,8 @@ export default function ScatterCorrelation() {
                 dataKey="y"
                 type="linear"
                 dot={false}
-                stroke="#0f172a"
-                strokeWidth={2}
+                stroke="var(--gold)"
+                strokeWidth={1.5}
                 strokeDasharray="7 4"
                 legendType="none"
                 isAnimationActive={false}
@@ -226,7 +263,7 @@ export default function ScatterCorrelation() {
         </ResponsiveContainer>
       </div>
 
-      <p className="text-xs text-slate-500 mt-2">
+      <p style={{ fontSize: "0.75rem", color: "var(--text-3)", marginTop: "0.5rem" }}>
         Chaque bulle représente un pays. La droite en pointillés est la droite de régression
         linéaire. Une corrélation n&apos;implique pas de causalité.
       </p>
@@ -249,7 +286,7 @@ function CustomDot({
 }) {
   if (cx === undefined || cy === undefined || !payload) return null;
   const isSelected = payload.code === selectedCode;
-  const opacity = hasSelection && !isSelected ? 0.25 : 0.85;
+  const opacity = hasSelection && !isSelected ? 0.2 : 0.85;
 
   return (
     <g>
@@ -259,8 +296,8 @@ function CustomDot({
         r={DOT_RADIUS}
         fill={color}
         fillOpacity={opacity}
-        stroke={isSelected ? "#0f172a" : "transparent"}
-        strokeWidth={isSelected ? 2.5 : 0}
+        stroke={isSelected ? "var(--gold)" : "transparent"}
+        strokeWidth={isSelected ? 2 : 0}
       />
       {isSelected && (
         <text
@@ -268,7 +305,7 @@ function CustomDot({
           y={cy + 4}
           fontSize={12}
           fontWeight={600}
-          fill="#0f172a"
+          fill="var(--text)"
           style={{ pointerEvents: "none", userSelect: "none" }}
         >
           {payload.flag} {payload.name}
@@ -280,39 +317,87 @@ function CustomDot({
 
 function CountryPreview({ country, onClose }: { country: Country; onClose: () => void }) {
   return (
-    <div className="mt-6 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-      {/* En-tête */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-slate-50">
-        <div className="flex items-center gap-3">
-          <span className="text-3xl">{country.flag}</span>
+    <div
+      className="card"
+      style={{ marginTop: "1.5rem", overflow: "hidden" }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "1rem 1.25rem",
+          borderBottom: "1px solid var(--border)",
+          background: "var(--surface-2)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.875rem" }}>
+          <span style={{ fontSize: "2.25rem", lineHeight: 1 }}>{country.flag}</span>
           <div>
-            <h2 className="text-lg font-bold text-slate-900">{country.name}</h2>
-            <span className="text-xs text-slate-500">{country.region}</span>
+            <h2
+              className="font-display"
+              style={{ fontSize: "1.125rem", fontWeight: 700, color: "var(--text)" }}
+            >
+              {country.name}
+            </h2>
+            <span className="badge badge-gold" style={{ marginTop: "0.25rem", display: "inline-block" }}>
+              {country.region}
+            </span>
           </div>
         </div>
         <button
           onClick={onClose}
-          className="text-slate-400 hover:text-slate-700 transition-colors text-xl leading-none px-2"
+          style={{
+            color: "var(--text-3)",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            fontSize: "1.25rem",
+            lineHeight: 1,
+            padding: "0.25rem 0.5rem",
+            transition: "color 160ms",
+            fontFamily: "inherit",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-3)")}
           aria-label="Fermer"
         >
           ✕
         </button>
       </div>
 
-      {/* Grille des indicateurs */}
-      <div className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        style={{
+          display: "grid",
+          gap: "0.6rem",
+          padding: "1.25rem",
+          gridTemplateColumns: "repeat(auto-fill, minmax(14rem, 1fr))",
+        }}
+      >
         {INDICATORS.map((ind) => {
           const value = country[ind.key];
           const rankInfo = getRank(country.code, ind.key);
           return (
-            <div key={ind.key} className="rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
-              <div className="text-xs text-slate-500 mb-1">{ind.label}</div>
-              <div className="flex items-baseline justify-between">
-                <span className="text-base font-semibold text-slate-800">
+            <div
+              key={ind.key}
+              className="card-elevated"
+              style={{ padding: "0.75rem 1rem" }}
+            >
+              <div style={{ fontSize: "0.7rem", color: "var(--text-3)", marginBottom: "0.3rem" }}>
+                {ind.label}
+              </div>
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+                <span
+                  className="font-mono-data"
+                  style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text)" }}
+                >
                   {formatValue(value, ind)}
                 </span>
                 {rankInfo && (
-                  <span className="text-xs text-slate-400">
+                  <span
+                    className="font-mono-data"
+                    style={{ fontSize: "0.7rem", color: "var(--text-3)" }}
+                  >
                     {rankInfo.rank}<sup>{rankInfo.rank === 1 ? "er" : "e"}</sup>
                     {" "}/ {rankInfo.total}
                   </span>
@@ -332,12 +417,12 @@ function AxisSelect({
   label: string; value: IndicatorKey; onChange: (k: IndicatorKey) => void; exclude: IndicatorKey;
 }) {
   return (
-    <label className="flex flex-col gap-1 text-sm">
-      <span className="text-slate-600 font-medium">{label}</span>
+    <label style={{ display: "flex", flexDirection: "column", gap: "0.3rem", fontSize: "0.875rem" }}>
+      <span style={{ color: "var(--text-2)", fontWeight: 500, fontSize: "0.75rem" }}>{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as IndicatorKey)}
-        className="px-3 py-2 rounded-md border border-slate-300 bg-white min-w-64"
+        style={{ minWidth: "16rem" }}
       >
         {INDICATORS.map((ind) => (
           <option key={ind.key} value={ind.key} disabled={ind.key === exclude}>
@@ -349,11 +434,20 @@ function AxisSelect({
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">
-      <div className="text-xs text-slate-500">{label}</div>
-      <div className="text-lg font-semibold text-slate-800">{value}</div>
+    <div className="card" style={{ padding: "0.75rem 1rem" }}>
+      <div style={{ fontSize: "0.7rem", color: "var(--text-3)", marginBottom: "0.25rem" }}>{label}</div>
+      <div
+        className="font-mono-data"
+        style={{
+          fontSize: "1.125rem",
+          fontWeight: 700,
+          color: highlight ? "var(--gold)" : "var(--text)",
+        }}
+      >
+        {value}
+      </div>
     </div>
   );
 }

@@ -31,44 +31,99 @@ export default async function PaysPage({
   if (!country) notFound();
 
   return (
-    <div className="flex flex-col gap-6">
-      <Link href="/classements" className="text-sm text-sky-600 hover:underline">
+    <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
+
+      {/* Breadcrumb */}
+      <Link
+        href="/classements"
+        style={{
+          fontSize: "0.8125rem",
+          color: "var(--text-3)",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "0.35rem",
+        }}
+      >
         ← Retour aux classements
       </Link>
 
-      <div className="flex items-center gap-3">
-        <span className="text-4xl">{country.flag}</span>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
+        <span style={{ fontSize: "3.5rem", lineHeight: 1 }}>{country.flag}</span>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">{country.name}</h1>
-          <span className="text-sm text-slate-500">{country.region}</span>
+          <h1
+            className="font-display"
+            style={{ fontSize: "2rem", fontWeight: 700, color: "var(--text)", lineHeight: 1.1 }}
+          >
+            {country.name}
+          </h1>
+          <span
+            className="badge badge-gold"
+            style={{ marginTop: "0.4rem", display: "inline-block" }}
+          >
+            {country.region}
+          </span>
         </div>
       </div>
 
+      {/* Radar */}
       <CountryRadar country={country} />
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      {/* Indicator grid */}
+      <div
+        style={{
+          display: "grid",
+          gap: "0.75rem",
+          gridTemplateColumns: "repeat(auto-fill, minmax(16rem, 1fr))",
+        }}
+      >
         {INDICATORS.map((ind) => {
           const value = country[ind.key];
           const rankInfo = getRank(country.code, ind.key);
           return (
-            <div key={ind.key} className="rounded-lg border border-slate-200 bg-white p-4">
+            <div
+              key={ind.key}
+              className="card"
+              style={{ padding: "1rem 1.25rem" }}
+            >
               <a
                 href={ind.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-slate-500 hover:underline"
-                title={ind.source}
+                style={{ fontSize: "0.75rem", color: "var(--text-3)" }}
               >
                 {ind.label} ↗
               </a>
-              <div className="flex items-baseline justify-between mt-1">
-                <span className="text-xl font-semibold text-slate-800">
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  justifyContent: "space-between",
+                  marginTop: "0.4rem",
+                }}
+              >
+                <span
+                  className="font-mono-data"
+                  style={{
+                    fontSize: "1.375rem",
+                    fontWeight: 700,
+                    color: value !== undefined ? "var(--text)" : "var(--text-3)",
+                  }}
+                >
                   {formatValue(value, ind)}
                 </span>
                 {rankInfo && (
-                  <span className="text-xs text-slate-500">
-                    {rankInfo.rank}
-                    <sup>{rankInfo.rank === 1 ? "er" : "e"}</sup> / {rankInfo.total}
+                  <span
+                    className="font-mono-data"
+                    style={{ fontSize: "0.75rem", color: "var(--text-3)" }}
+                  >
+                    <span style={{ color: rankInfo.rank <= 10 ? "var(--gold)" : "var(--text-2)" }}>
+                      {rankInfo.rank}
+                    </span>
+                    <sup style={{ fontSize: "0.6rem" }}>
+                      {rankInfo.rank === 1 ? "er" : "e"}
+                    </sup>
+                    <span> / {rankInfo.total}</span>
                   </span>
                 )}
               </div>
@@ -76,6 +131,7 @@ export default async function PaysPage({
           );
         })}
       </div>
+
     </div>
   );
 }

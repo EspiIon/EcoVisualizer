@@ -7,12 +7,31 @@ export const metadata: Metadata = {
 
 export default function ClassementsPage() {
   return (
-    <div className="flex flex-col gap-4">
+    <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Classements</h1>
-        <p className="text-slate-600 mt-1">
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+          <div style={{ width: "1.5rem", height: "1px", background: "var(--gold)" }} />
+          <span
+            style={{
+              fontSize: "0.6875rem",
+              fontWeight: 600,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--gold)",
+            }}
+          >
+            Données 2022–2026
+          </span>
+        </div>
+        <h1
+          className="font-display"
+          style={{ fontSize: "1.75rem", fontWeight: 700, color: "var(--text)", marginBottom: "0.5rem" }}
+        >
+          Classements par indicateur
+        </h1>
+        <p style={{ color: "var(--text-2)", maxWidth: "42rem", lineHeight: 1.6, fontSize: "0.9375rem" }}>
           Cliquez sur un en-tête de colonne pour trier. La coloration indique les valeurs
-          favorables (vert) ou défavorables (rouge) selon le sens de l&apos;indicateur.
+          favorables <span style={{ color: "#34d399" }}>●</span> ou défavorables <span style={{ color: "#f87171" }}>●</span> selon le sens de l&apos;indicateur.
         </p>
       </div>
       <RankingTable />

@@ -24,10 +24,9 @@ export default function CountryRadar({ country }: { country: Country }) {
   const data = useMemo<RadarRow[]>(() => {
     const bounds = allBounds();
     return directionalIndicators().map((ind) => {
-      // Moyenne mondiale normalisée = moyenne des valeurs normalisées de tous les pays.
-      const worldNorms = COUNTRIES.map((c) => normalize(c[ind.key], ind.key, bounds[ind.key])).filter(
-        (v): v is number => v !== null,
-      );
+      const worldNorms = COUNTRIES.map((c) =>
+        normalize(c[ind.key], ind.key, bounds[ind.key]),
+      ).filter((v): v is number => v !== null);
       const worldAvg =
         worldNorms.length > 0
           ? Math.round((worldNorms.reduce((a, b) => a + b, 0) / worldNorms.length) * 10) / 10
@@ -41,37 +40,70 @@ export default function CountryRadar({ country }: { country: Country }) {
   }, [country]);
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <h2 className="text-sm font-semibold text-slate-700 mb-1">Profil comparé</h2>
-      <p className="text-xs text-slate-500 mb-2">
-        Indicateurs ramenés sur une échelle 0–100 (100 = meilleur du panel), comparés à la moyenne
-        mondiale.
+    <div
+      className="card"
+      style={{ padding: "1.25rem" }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.25rem" }}>
+        <h2
+          className="font-display"
+          style={{ fontSize: "1rem", fontWeight: 600, color: "var(--text)" }}
+        >
+          Profil comparé
+        </h2>
+        <span className="badge badge-gold">0 – 100</span>
+      </div>
+      <p style={{ fontSize: "0.75rem", color: "var(--text-3)", marginBottom: "0.5rem" }}>
+        Indicateurs ramenés sur 0–100 (100 = meilleur du panel), comparés à la moyenne mondiale.
       </p>
       <ResponsiveContainer width="100%" height={340}>
         <RadarChart data={data} outerRadius="72%">
-          <PolarGrid stroke="#e2e8f0" />
-          <PolarAngleAxis dataKey="indicator" tick={{ fontSize: 11, fill: "#475569" }} />
-          <PolarRadiusAxis domain={[0, 100]} tick={{ fontSize: 9, fill: "#94a3b8" }} angle={90} />
+          <PolarGrid stroke="var(--border)" strokeDasharray="4 3" />
+          <PolarAngleAxis
+            dataKey="indicator"
+            tick={{ fontSize: 11, fill: "var(--text-2)", fontFamily: "Outfit, sans-serif" }}
+          />
+          <PolarRadiusAxis
+            domain={[0, 100]}
+            tick={{ fontSize: 9, fill: "var(--text-3)" }}
+            angle={90}
+            stroke="var(--border)"
+          />
           <Radar
             name={country.name}
             dataKey="pays"
-            stroke="#0284c7"
-            fill="#0284c7"
-            fillOpacity={0.4}
+            stroke="#d4a843"
+            fill="#d4a843"
+            fillOpacity={0.25}
+            strokeWidth={2}
             isAnimationActive={false}
           />
           <Radar
             name="Moyenne mondiale"
             dataKey="monde"
-            stroke="#94a3b8"
-            fill="#94a3b8"
-            fillOpacity={0.15}
+            stroke="var(--text-3)"
+            fill="var(--text-3)"
+            fillOpacity={0.1}
+            strokeWidth={1.5}
+            strokeDasharray="5 3"
             isAnimationActive={false}
           />
-          <Legend wrapperStyle={{ fontSize: 12 }} />
+          <Legend
+            wrapperStyle={{
+              fontSize: "0.75rem",
+              color: "var(--text-2)",
+              fontFamily: "Outfit, sans-serif",
+            }}
+          />
           <Tooltip
             formatter={(v) => (typeof v === "number" ? `${v} / 100` : "n/d")}
-            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e2e8f0" }}
+            contentStyle={{
+              fontSize: "0.75rem",
+              borderRadius: "var(--radius)",
+              border: "1px solid var(--border-2)",
+              background: "var(--surface-2)",
+              color: "var(--text)",
+            }}
           />
         </RadarChart>
       </ResponsiveContainer>
