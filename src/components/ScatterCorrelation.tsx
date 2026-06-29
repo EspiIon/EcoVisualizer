@@ -246,6 +246,7 @@ export default function ScatterCorrelation() {
                 key={rg}
                 name={rg}
                 data={byRegion.get(rg)}
+                fill={REGION_COLORS[rg]}
                 isAnimationActive={false}
                 cursor="pointer"
                 onClick={handleDotClick}
