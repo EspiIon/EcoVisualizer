@@ -14,19 +14,22 @@ function cellColor(r: number): string {
   if (Number.isNaN(r)) return "transparent";
   const abs = Math.abs(r);
   if (r >= 0) {
-    const l = 22 - Math.round(abs * 12);
-    const s = 40 + Math.round(abs * 25);
+    const l = 97 - Math.round(abs * 20);
+    const s = 35 + Math.round(abs * 40);
     return `hsl(142 ${s}% ${l}%)`;
   } else {
-    const l = 22 - Math.round(abs * 12);
-    const s = 50 + Math.round(abs * 20);
+    const l = 97 - Math.round(abs * 18);
+    const s = 45 + Math.round(abs * 35);
     return `hsl(0 ${s}% ${l}%)`;
   }
 }
 
 function textColor(r: number): string {
   if (Number.isNaN(r)) return "var(--text-3)";
-  return Math.abs(r) > 0.3 ? "var(--text)" : "var(--text-2)";
+  const abs = Math.abs(r);
+  if (abs > 0.7) return "#1a1916";
+  if (abs > 0.35) return "var(--text-2)";
+  return "var(--text-3)";
 }
 
 export default function CorrelationMatrix() {

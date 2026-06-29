@@ -72,8 +72,8 @@ export default function CountryRadar({ country }: { country: Country }) {
           <Radar
             name={country.name}
             dataKey="pays"
-            stroke="#d4a843"
-            fill="#d4a843"
+            stroke="#e85d04"
+            fill="#e85d04"
             fillOpacity={0.25}
             strokeWidth={2}
             isAnimationActive={false}

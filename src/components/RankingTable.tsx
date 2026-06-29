@@ -23,8 +23,8 @@ function heatColor(
   if (!higherIsBetter) t = 1 - t;
   const hue = t >= 0.5 ? 142 : 0;
   const intensity = Math.abs(t - 0.5) * 2;
-  const lightness = 14 + Math.round(intensity * 10);
-  const sat = 50 + Math.round(intensity * 20);
+  const lightness = 96 - Math.round(intensity * 16);
+  const sat = 40 + Math.round(intensity * 35);
   return `hsl(${hue} ${sat}% ${lightness}%)`;
 }
 

@@ -20,11 +20,11 @@ import { formatByUnit, formatR, formatValue } from "@/lib/format";
 import { getRank } from "@/lib/ranking";
 
 const REGION_COLORS: Record<Region, string> = {
-  Europe: "#60a5fa",
-  Amériques: "#34d399",
-  "Asie-Pacifique": "#f59e0b",
-  "Moyen-Orient": "#a78bfa",
-  Afrique: "#fb923c",
+  Europe: "#1a56db",
+  Amériques: "#057a55",
+  "Asie-Pacifique": "#b45309",
+  "Moyen-Orient": "#6c2bd9",
+  Afrique: "#e85d04",
 };
 
 const DOT_SIZE = 300;
@@ -232,8 +232,8 @@ export default function ScatterCorrelation() {
                 dataKey="y"
                 type="linear"
                 dot={false}
-                stroke="var(--gold)"
-                strokeWidth={1.5}
+                stroke="#e85d04"
+                strokeWidth={2}
                 strokeDasharray="7 4"
                 legendType="none"
                 isAnimationActive={false}
