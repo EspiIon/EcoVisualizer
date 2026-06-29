@@ -107,10 +107,17 @@ export default function ScatterCorrelation() {
     return map;
   }, [points]);
 
-  function handleDotClick(data: unknown) {
-    const pt = data as Point;
-    const country = COUNTRIES.find((c) => c.code === pt.code) ?? null;
-    setSelected(country);
+  function handleChartClick(data: unknown) {
+    const d = data as { activePayload?: { payload: Point }[] } | null;
+    if (!d?.activePayload?.length) {
+      setSelected(null);
+      return;
+    }
+    const pt = d.activePayload[0]?.payload;
+    if (pt?.code) {
+      const country = COUNTRIES.find((c) => c.code === pt.code) ?? null;
+      setSelected(country);
+    }
   }
 
   return (
@@ -184,10 +191,10 @@ export default function ScatterCorrelation() {
       {/* Chart */}
       <div className="card" style={{ padding: "1rem" }}>
         <p style={{ fontSize: "0.75rem", color: "var(--text-3)", marginBottom: "0.5rem" }}>
-          Cliquez sur une bulle pour voir la fiche pays
+          Cliquez sur une bulle pour la sélectionner · cliquez sur le fond pour désélectionner
         </p>
         <ResponsiveContainer width="100%" height={500}>
-          <ComposedChart margin={{ top: 16, right: 32, bottom: 48, left: 24 }}>
+          <ComposedChart margin={{ top: 16, right: 32, bottom: 48, left: 24 }} onClick={handleChartClick}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               type="number"
@@ -249,7 +256,6 @@ export default function ScatterCorrelation() {
                 fill={REGION_COLORS[rg]}
                 isAnimationActive={false}
                 cursor="pointer"
-                onClick={handleDotClick}
                 shape={(props: unknown) => (
                   <CustomDot
                     {...(props as Record<string, unknown>)}
