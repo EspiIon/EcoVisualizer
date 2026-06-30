@@ -24,7 +24,7 @@ const REGION_COLORS: Record<Region, string> = {
   Amériques: "#057a55",
   "Asie-Pacifique": "#b45309",
   "Moyen-Orient": "#6c2bd9",
-  Afrique: "#e85d04",
+  Afrique: "#db2777",
 };
 
 const DOT_SIZE = 300;
